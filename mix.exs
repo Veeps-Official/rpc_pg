@@ -29,7 +29,8 @@ defmodule RpcPG.MixProject do
   defp deps do
     [
       {:excoveralls, "~> 0.14", only: :test},
-      {:credo, "~> 1.6", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false}
     ]
   end
 end
