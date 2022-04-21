@@ -8,7 +8,7 @@ defmodule RpcPG.ServerCallback do
       def supervisor_spec(as: name) do
         opts =
           __MODULE__
-          |> RpcPG.Server.build_config(unquote(otp_app))
+          |> RpcPG.build_config(unquote(otp_app))
           |> Keyword.merge(name: name)
 
         {RpcPG.ServerSupervisor, opts}
