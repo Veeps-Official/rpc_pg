@@ -59,9 +59,7 @@ defmodule RpcPG do
   end
 
   @doc false
-  def join_group(_group, role: :client), do: nil
-
-  def join_group(group, role: :server) do
+  def join_group(group) do
     pid = self()
 
     @pg_scope

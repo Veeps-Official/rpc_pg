@@ -11,7 +11,7 @@ defmodule RpcPG.Server do
   def init(config) do
     group = Keyword.fetch!(config, :group)
 
-    RpcPG.join_group(group, role: :server)
+    RpcPG.join_group(group)
 
     {:ok, config}
   end

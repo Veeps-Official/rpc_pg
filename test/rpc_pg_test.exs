@@ -5,13 +5,7 @@ defmodule RpcPGTest do
 
   doctest RpcPG
 
-  describe "join_group/2 with role: :client" do
-    test "returns nil" do
-      assert nil == RpcPG.join_group(:anything, role: :client)
-    end
-  end
-
-  describe "join_group/2 with role: :server" do
+  describe "join_group/1" do
     setup do
       :pg.start_link(RpcPG.pg_scope())
 
@@ -25,7 +19,7 @@ defmodule RpcPGTest do
 
       {_result, log} =
         with_log(fn ->
-          RpcPG.join_group("unit", role: :server)
+          RpcPG.join_group("unit")
         end)
 
       assert [^pid] = :pg.get_local_members(RpcPG.pg_scope(), "unit")
@@ -37,10 +31,10 @@ defmodule RpcPGTest do
 
       {_result, log} =
         with_log(fn ->
-          RpcPG.join_group("unit", role: :server)
+          RpcPG.join_group("unit")
         end)
 
-      RpcPG.join_group("unit", role: :server)
+      RpcPG.join_group("unit")
 
       assert [^pid] = :pg.get_local_members(RpcPG.pg_scope(), "unit")
       assert log =~ ~s(RpcPG.Server:join group: "unit")
