@@ -15,8 +15,4 @@ defmodule RpcPG.Server do
 
     {:ok, config}
   end
-
-  def build_config(client, otp_app) do
-    Application.fetch_env!(otp_app, client)
-  end
 end

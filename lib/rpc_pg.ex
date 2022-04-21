@@ -6,6 +6,10 @@ defmodule RpcPG do
   @pg_scope :rpc_pg
   @timeout_ms 3_000
 
+  def build_config(client, otp_app) do
+    Application.fetch_env!(otp_app, client)
+  end
+
   @spec execute(opts :: keyword(), payload :: any()) ::
           {:ok, :rpc, any()}
           | {:error, :rpc, any()}
@@ -14,6 +18,7 @@ defmodule RpcPG do
   def execute(opts, payload) do
     group = Keyword.fetch!(opts, :group)
     mod = Keyword.fetch!(opts, :server_callback)
+    timeout = Keyword.get(opts, :timeout, @timeout_ms)
 
     case :pg.get_members(@pg_scope, group) do
       [] ->
@@ -37,24 +42,9 @@ defmodule RpcPG do
           {:rpc_pg_failure, message} ->
             {:error, :rpc, message}
         after
-          @timeout_ms ->
+          timeout ->
             {:error, :timeout}
         end
-    end
-  end
-
-  @doc false
-  def rpc_pg_handle_reply({execution_time, _result}, callback_module, _from)
-      when execution_time > @timeout_ms,
-      do: Logger.warn("#{callback_module}.reply/1 timeout: #{execution_time / 1_000}ms")
-
-  def rpc_pg_handle_reply({_execution_time, result}, _callback_module, from_pid) do
-    case result do
-      {:ok, response} ->
-        send(from_pid, {:rpc_pg_success, response})
-
-      {:error, error_response} ->
-        send(from_pid, {:rpc_pg_failure, error_response})
     end
   end
 
@@ -80,4 +70,19 @@ defmodule RpcPG do
 
   @doc false
   def pg_scope, do: @pg_scope
+
+  @doc false
+  def rpc_pg_handle_reply({execution_time, _result}, callback_module, _from)
+      when execution_time > @timeout_ms,
+      do: Logger.warn("#{callback_module}.reply/1 timeout: #{execution_time / 1_000}ms")
+
+  def rpc_pg_handle_reply({_execution_time, result}, _callback_module, from_pid) do
+    case result do
+      {:ok, response} ->
+        send(from_pid, {:rpc_pg_success, response})
+
+      {:error, error_response} ->
+        send(from_pid, {:rpc_pg_failure, error_response})
+    end
+  end
 end
