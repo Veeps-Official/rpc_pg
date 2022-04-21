@@ -15,7 +15,11 @@ defmodule RpcPG.ServerCallback do
       end
 
       def handle_rpc(from_pid, caller_params) do
-        RpcPG.rpc_pg_handle_reply(:timer.tc(__MODULE__, :reply, [caller_params]), from_pid)
+        RpcPG.rpc_pg_handle_reply(
+          :timer.tc(__MODULE__, :reply, [caller_params]),
+          __MODULE__,
+          from_pid
+        )
       end
     end
   end

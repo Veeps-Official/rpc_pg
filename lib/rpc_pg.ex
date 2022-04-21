@@ -26,7 +26,7 @@ defmodule RpcPG do
         |> Enum.random()
         |> node()
         |> tap(fn node_name ->
-          Logger.info("SELECTED: #{inspect(node_name)}")
+          Logger.info("RpcPG:Server selected: #{inspect(node_name)}")
         end)
         |> Node.spawn(mod, :handle_rpc, [from, payload])
 
@@ -44,11 +44,11 @@ defmodule RpcPG do
   end
 
   @doc false
-  def rpc_pg_handle_reply({execution_time, _result}, _from)
+  def rpc_pg_handle_reply({execution_time, _result}, callback_module, _from)
       when execution_time > @timeout_ms,
-      do: nil
+      do: Logger.warn("#{callback_module}.reply/1 timeout: #{execution_time / 1_000}ms")
 
-  def rpc_pg_handle_reply({_execution_time, result}, from_pid) do
+  def rpc_pg_handle_reply({_execution_time, result}, _callback_module, from_pid) do
     case result do
       {:ok, response} ->
         send(from_pid, {:rpc_pg_success, response})
