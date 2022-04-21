@@ -15,13 +15,7 @@ defmodule RpcPG.ServerCallback do
       end
 
       def handle_rpc(from_pid, caller_params) do
-        case reply(caller_params) do
-          {:ok, response} ->
-            send(from_pid, {:rpc_pg_success, response})
-
-          {:error, error_response} ->
-            send(from_pid, {:rpc_pg_failure, error_response})
-        end
+        RpcPG.rpc_pg_handle_reply(:timer.tc(__MODULE__, :reply, [caller_params]), from_pid)
       end
     end
   end

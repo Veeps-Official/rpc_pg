@@ -44,6 +44,21 @@ defmodule RpcPG do
   end
 
   @doc false
+  def rpc_pg_handle_reply({execution_time, _result}, _from)
+      when execution_time > @timeout_ms,
+      do: nil
+
+  def rpc_pg_handle_reply({_execution_time, result}, from_pid) do
+    case result do
+      {:ok, response} ->
+        send(from_pid, {:rpc_pg_success, response})
+
+      {:error, error_response} ->
+        send(from_pid, {:rpc_pg_failure, error_response})
+    end
+  end
+
+  @doc false
   def join_group(_group, role: :client), do: nil
 
   def join_group(group, role: :server) do
